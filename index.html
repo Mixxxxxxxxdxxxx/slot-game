@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine Reels</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-image: url('https://img.pikbest.com/backgrounds/20220119/red-birthday-party-hd-background_6243821.jpg!w700wp');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .reel-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        .reel {
+            width: 120px;
+            height: 300px;
+            border: 3px solid black;
+            font-size: 50px;
+            overflow: hidden;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .symbols {
+            position: absolute;
+            width: 100%;
+            top: 0px;
+        }
+
+        .symbols span {
+            display: block;
+            width: 100%;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .button-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .button {
+            padding: 0;
+            width: 120px;
+            height: 120px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            border-radius: 50%;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .button:hover {
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://tsonline.playpark.com/th-th/wp-content/uploads/2020/10/%E0%B8%9B%E0%B8%B8%E0%B9%88%E0%B8%A1.png');
+            background-size: cover;
+            background-position: center;
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        h2 {
+            color: #000;
+            margin-top: 20px;
+        }
+
+        /* Popup styles */
+        .popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: rgba(0, 255, 0, 0.8);
+            border-radius: 15px;
+            color: white;
+            font-size: 24px;
+            display: none;
+            z-index: 10;
+        }
+
+        .popup.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>HEIA MIX 🎱🎱🎱</h1>
+    
+    <div class="reel-container">
+        <div class="reel">
+            <div class="symbols" id="reel1"></div>
+        </div>
+        <div class="reel">
+            <div class="symbols" id="reel2"></div>
+        </div>
+        <div class="reel">
+            <div class="symbols" id="reel3"></div>
+        </div>
+    </div>
+
+    <div class="button-container">
+        <button class="button" id="spinButton" onclick="spin()"></button>
+    </div>
+    <h2 id="result"></h2>
+
+    <!-- Popup -->
+    <div class="popup" id="winPopup">🎉 คุณชนะแล้ว เย้! 🎉</div>
+
+    <!-- เสียง -->
+    <audio id="winSound" src="https://example.com/audio/win_sound.mp3"></audio>
+    <audio id="loseSound" src="https://drive.google.com/uc?export=download&id=1KYECmsTprIjEPvTfppJ4bmHZTu-wsFr3"></audio>
+
+    <script>
+        const symbols = ['💰', '🔥', '🐉'];
+        let isSpinning = false;
+
+        // กำหนดเปอร์เซ็นต์การชนะ (0.40 คือ 40%)
+        const winChance = 0.40;
+
+        // ฟังก์ชันสุ่มสัญลักษณ์
+        function getRandomSymbols() {
+            return [
+                symbols[Math.floor(Math.random() * symbols.length)],
+                symbols[Math.floor(Math.random() * symbols.length)],
+                symbols[Math.floor(Math.random() * symbols.length)]
+            ];
+        }
+
+        // ฟังก์ชันเล่นเสียง
+        const winSound = document.getElementById('winSound');
+        const loseSound = document.getElementById('loseSound');
+
+        function playWinSound() {
+            winSound.play();
+        }
+
+        function playLoseSound() {
+            loseSound.play();
+        }
+
+        // ฟังก์ชันหมุน
+        function spin() {
+            if (isSpinning) return;
+            isSpinning = true;
+            document.getElementById('spinButton').disabled = true;
+
+            let reels = [document.getElementById('reel1'), document.getElementById('reel2'), document.getElementById('reel3')];
+            let results = [getRandomSymbols(), getRandomSymbols(), getRandomSymbols()];
+
+            reels.forEach((reel, index) => {
+                reel.innerHTML = `
+                    <span>🔲</span>
+                    <span>🔲</span>
+                    <span>🔲</span>
+                    <span>🔲</span>
+                    <span>🔲</span>
+                `;
+                reel.style.top = '0px';
+            });
+
+            reels.forEach((reel, index) => {
+                reel.style.transition = 'top 2s ease-out';
+                reel.style.top = '300px';
+            });
+
+            setTimeout(() => {
+                reels.forEach((reel, index) => {
+                    reel.style.transition = 'none';
+                    reel.style.top = '0px';
+                    reel.innerHTML = '';
+                    results[index].forEach(symbol => {
+                        let newSymbol = document.createElement('span');
+                        newSymbol.textContent = symbol;
+                        reel.appendChild(newSymbol);
+                    });
+                });
+
+                // เช็คผลลัพธ์การชนะ
+                const randomOutcome = Math.random();
+
+                if (randomOutcome <= winChance && results[0][0] === results[1][0] && results[1][0] === results[2][0] && results[0][0] !== undefined) {
+                    playWinSound();  // เล่นเสียงเมื่อชนะ
+                    showPopup();
+                } else if (randomOutcome <= winChance && results[0][1] === results[1][1] && results[1][1] === results[2][1] && results[0][1] !== undefined) {
+                    playWinSound();  // เล่นเสียงเมื่อชนะ
+                    showPopup();
+                } else if (randomOutcome <= winChance && results[0][2] === results[1][2] && results[1][2] === results[2][2] && results[0][2] !== undefined) {
+                    playWinSound();  // เล่นเสียงเมื่อชนะ
+                    showPopup();
+                } else {
+                    playLoseSound();  // เล่นเสียงเมื่อแพ้
+                    document.getElementById('result').innerText = 'ลองใหม่นะไอกาก!';  // แสดงข้อความเมื่อไม่ชนะ
+                }
+
+                isSpinning = false;
+                document.getElementById('spinButton').disabled = false;
+            }, 2000);
+        }
+
+        // ฟังก์ชันแสดง Popup
+        function showPopup() {
+            const popup = document.getElementById('winPopup');
+            popup.classList.add('show');
+            setTimeout(() => {
+                popup.classList.remove('show');
+            }, 3000);  // ซ่อน popup หลังจาก 3 วินาที
+        }
+    </script>
+</body>
+</html>
